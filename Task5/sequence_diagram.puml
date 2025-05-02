@@ -1,0 +1,19 @@
+@startuml
+actor Клиент as client
+participant "Онлайн-магазин" as frontend
+participant "Кэш (Redis)" as cache
+participant "MES (расчет стоимости)" as mes
+
+client -> frontend: Загружает 3D-модель
+frontend -> cache: Запрос стоимости (хэш модели)
+alt Найдено в кэше
+    cache --> frontend: Возвращает стоимость
+    frontend --> client: Показывает стоимость
+else Не найдено
+    cache -> mes: Передает модель для расчета
+    mes -> mes: Выполняет расчет стоимости
+    mes -> cache: Сохраняет результат (хэш + стоимость)
+    cache --> frontend: Возвращает новую стоимость
+    frontend --> client: Показывает стоимость
+end
+@enduml
